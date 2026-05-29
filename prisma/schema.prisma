@@ -1,0 +1,33 @@
+// Voyager — Travel Journal
+// Schema docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// 一条旅行日志
+model Entry {
+  id          String   @id @default(cuid())
+  destination String
+  country     String
+  startDate   DateTime
+  endDate     DateTime
+  rating      Int      // 1..5
+  review      String
+  mood        String?
+  imageUrl    String?
+  favorite    Boolean  @default(false)
+  /// 标签以 JSON 字符串形式存储（SQLite 不原生支持数组）
+  tagsJson    String   @default("[]")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([country])
+  @@index([startDate])
+}
