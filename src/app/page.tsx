@@ -1,29 +1,63 @@
 import { Hero } from "@/components/hero";
-import { prisma } from "@/lib/prisma";
+import { Controls } from "@/components/controls";
+import { EntryCard } from "@/components/entry-card";
+import { EmptyState } from "@/components/empty-state";
+import { listCountries, listEntries, type SortKey } from "@/lib/queries";
 
-export default async function JournalPage() {
-  const entries = await prisma.entry.findMany({
-    orderBy: { startDate: "desc" },
-  });
+const VALID_SORTS: SortKey[] = [
+  "date-desc",
+  "date-asc",
+  "rating-desc",
+  "rating-asc",
+];
+
+type SearchParams = Promise<{
+  q?: string;
+  country?: string;
+  rating?: string;
+  sort?: string;
+}>;
+
+export default async function JournalPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const sp = await searchParams;
+  const sort = (VALID_SORTS as string[]).includes(sp.sort ?? "")
+    ? (sp.sort as SortKey)
+    : "date-desc";
+
+  const minRating = sp.rating ? parseInt(sp.rating, 10) : undefined;
+
+  const [{ entries, total, filtered }, countries] = await Promise.all([
+    listEntries({
+      q: sp.q?.trim() || undefined,
+      country: sp.country || undefined,
+      minRating: Number.isFinite(minRating) ? minRating : undefined,
+      sort,
+    }),
+    listCountries(),
+  ]);
 
   return (
     <>
       <Hero variant="journal" />
+      <Controls countries={countries} total={total} filtered={filtered} />
+
       <main className="mx-auto max-w-[1400px] px-8 pb-16">
-        {/* TODO Phase 2: 卡片网格 + 搜索/筛选/排序 */}
-        <p className="text-ink-muted">
-          {entries.length} entries loaded · 卡片网格将在 Phase 2 实现。
-        </p>
-        <ul className="mt-4 grid gap-2 text-sm text-ink/80">
-          {entries.map((e) => (
-            <li key={e.id}>
-              <span className="font-display text-base text-ink">
-                {e.destination}
-              </span>{" "}
-              · {e.country} · {"★".repeat(e.rating)}
-            </li>
-          ))}
-        </ul>
+        {entries.length === 0 ? (
+          <EmptyState
+            title="No entries found"
+            hint="Try adjusting your filters or add a new travel memory."
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {entries.map((entry, i) => (
+              <EntryCard key={entry.id} entry={entry} index={i} />
+            ))}
+          </div>
+        )}
       </main>
     </>
   );
