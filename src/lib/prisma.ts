@@ -2,7 +2,6 @@
  * Prisma Client 单例
  * 在开发模式下复用同一个实例，避免热重载时连接数爆炸
  */
-import path from "node:path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/generated/prisma/client";
 
@@ -11,12 +10,10 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrisma() {
+  // 适配器内部会自行去掉 file: 前缀，并把相对路径解析到 process.cwd()，
+  // 所以这里直接透传 DATABASE_URL 即可，无需手动 path.resolve。
   const url = process.env.DATABASE_URL ?? "file:./dev.db";
-  const filename = url.startsWith("file:")
-    ? path.resolve(process.cwd(), url.slice("file:".length))
-    : url;
-
-  const adapter = new PrismaBetterSqlite3({ url: `file:${filename}` });
+  const adapter = new PrismaBetterSqlite3({ url });
   return new PrismaClient({ adapter });
 }
 

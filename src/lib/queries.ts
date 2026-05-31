@@ -59,3 +59,10 @@ export async function listCountries() {
   });
   return rows.map((r) => r.country);
 }
+
+/**
+ * 按 id 取单条；不存在返回 null（页面据此 notFound）
+ */
+export async function getEntry(id: string) {
+  return prisma.entry.findUnique({ where: { id } });
+}
