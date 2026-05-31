@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,14 @@ const navItems = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const params = useSearchParams();
+
+  // 在当前路径上叠加 ?new=1 打开新建面板，保留已有查询参数
+  const newEntryHref = (() => {
+    const next = new URLSearchParams(params.toString());
+    next.set("new", "1");
+    return `${pathname}?${next.toString()}`;
+  })();
 
   return (
     <header
@@ -59,8 +67,9 @@ export function SiteHeader() {
         </nav>
 
         {/* CTA */}
-        <button
-          type="button"
+        <Link
+          href={newEntryHref}
+          scroll={false}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-xl bg-accent px-5 py-2.5",
             "text-sm font-medium tracking-wide text-white",
@@ -71,7 +80,7 @@ export function SiteHeader() {
         >
           <Plus className="size-4" strokeWidth={2.5} />
           New Entry
-        </button>
+        </Link>
       </div>
     </header>
   );

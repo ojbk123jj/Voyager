@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FavoriteButton } from "@/components/favorite-button";
 import { formatDateRange, gradientFor, parseTags } from "@/lib/format";
 import type { Entry } from "@/generated/prisma/client";
 
@@ -51,22 +51,8 @@ export function EntryCard({ entry, index = 0 }: Props) {
         {/* 底部暗色渐变，让白字可读 */}
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent_50%,rgb(30_27_24/0.35)_100%)]" />
 
-        {/* 收藏按钮（占位，Phase 6 接 Server Action）— z-30 以高于覆盖链接 */}
-        <button
-          type="button"
-          aria-label={entry.favorite ? "Remove from favorites" : "Add to favorites"}
-          className={cn(
-            "absolute left-4 top-4 z-30 flex size-9 items-center justify-center rounded-full",
-            "bg-white/90 backdrop-blur-md shadow-md transition-transform duration-200",
-            "hover:scale-110",
-          )}
-        >
-          <Heart
-            className={cn("size-4", entry.favorite && "fill-danger")}
-            color="#C1554F"
-            strokeWidth={2}
-          />
-        </button>
+        {/* 收藏按钮 — z-30 高于覆盖链接 */}
+        <FavoriteButton id={entry.id} favorite={entry.favorite} />
 
         {/* Mood */}
         {entry.mood ? (

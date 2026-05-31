@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Pencil, Trash2 } from "lucide-react";
 import { Stars } from "@/components/entry-card";
+import { EntryActions } from "@/components/entry-actions";
 import { formatDateRange, gradientFor, parseTags } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { Entry } from "@/generated/prisma/client";
@@ -73,29 +73,8 @@ export function EntryDetail({ entry }: { entry: Entry }) {
           </div>
         ) : null}
 
-        {/* 操作（Phase 4 接 Server Action） */}
-        <div className="mt-6 flex gap-3">
-          <button
-            type="button"
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md border border-line px-3.5 py-2",
-              "text-[0.82rem] font-medium text-ink-muted transition-colors",
-              "hover:border-accent hover:text-accent hover:bg-accent/10",
-            )}
-          >
-            <Pencil className="size-3.5" /> Edit
-          </button>
-          <button
-            type="button"
-            className={cn(
-              "inline-flex items-center gap-1.5 rounded-md border border-[#E8C8C5] px-3.5 py-2",
-              "text-[0.82rem] font-medium text-danger transition-colors",
-              "hover:bg-[#FDF2F1] hover:border-danger",
-            )}
-          >
-            <Trash2 className="size-3.5" /> Delete
-          </button>
-        </div>
+        {/* 操作 */}
+        <EntryActions id={entry.id} />
       </div>
     </>
   );

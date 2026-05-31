@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Karla } from "next/font/google";
+import { Suspense } from "react";
 import { SiteHeader } from "@/components/site-header";
+import { ToastProvider } from "@/components/toast";
+import { EntryPanel } from "@/components/entry-panel";
 import "./globals.css";
 
 const fontDisplay = Cormorant_Garamond({
@@ -35,9 +38,16 @@ export default function RootLayout({
       className={`${fontDisplay.variable} ${fontSans.variable} antialiased`}
     >
       <body className="min-h-screen">
-        <SiteHeader />
-        {children}
-        {modal}
+        <ToastProvider>
+          <Suspense fallback={<div className="h-18 border-b border-line" />}>
+            <SiteHeader />
+          </Suspense>
+          {children}
+          {modal}
+          <Suspense fallback={null}>
+            <EntryPanel />
+          </Suspense>
+        </ToastProvider>
       </body>
     </html>
   );
