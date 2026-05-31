@@ -66,3 +66,30 @@ export async function listCountries() {
 export async function getEntry(id: string) {
   return prisma.entry.findUnique({ where: { id } });
 }
+
+/**
+ * 收藏的条目（Collections 页）
+ */
+export async function listFavorites() {
+  return prisma.entry.findMany({
+    where: { favorite: true },
+    orderBy: { startDate: "desc" },
+  });
+}
+
+/**
+ * 全局聚合统计（About / Hero 用）
+ */
+export async function getStats() {
+  const all = await prisma.entry.findMany({
+    select: { country: true, favorite: true, rating: true },
+  });
+  const destinations = all.length;
+  const countries = new Set(all.map((e) => e.country)).size;
+  const favorites = all.filter((e) => e.favorite).length;
+  const avgRating =
+    all.length > 0
+      ? (all.reduce((s, e) => s + e.rating, 0) / all.length).toFixed(1)
+      : "0.0";
+  return { destinations, countries, favorites, avgRating };
+}

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getStats } from "@/lib/queries";
 
 export type HeroVariant = "journal" | "collections" | "map" | "about";
 
@@ -26,18 +26,13 @@ const headings: Record<HeroVariant, React.ReactNode> = {
   ),
 };
 
-async function getStats() {
-  const [destinations, all] = await Promise.all([
-    prisma.entry.count(),
-    prisma.entry.findMany({ select: { country: true, favorite: true } }),
-  ]);
-  const countries = new Set(all.map((e) => e.country)).size;
-  const favorites = all.filter((e) => e.favorite).length;
+async function getStatsData() {
+  const { destinations, countries, favorites } = await getStats();
   return { destinations, countries, favorites };
 }
 
 export async function Hero({ variant = "journal" }: { variant?: HeroVariant }) {
-  const stats = await getStats();
+  const stats = await getStatsData();
 
   return (
     <section className="mx-auto max-w-[1400px] px-8 pt-12 pb-6">

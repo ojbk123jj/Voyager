@@ -13,6 +13,17 @@ export type ActionState = {
 };
 
 /**
+ * 写操作后统一刷新所有会受影响的页面（列表/收藏/地图/关于的统计）。
+ */
+function revalidateAll(id?: string) {
+  revalidatePath("/");
+  revalidatePath("/collections");
+  revalidatePath("/map");
+  revalidatePath("/about");
+  if (id) revalidatePath(`/entries/${id}`);
+}
+
+/**
  * 从 FormData 解析出表单对象。tags 以隐藏字段里的 JSON 字符串传递。
  */
 function parseForm(formData: FormData) {
@@ -67,9 +78,7 @@ export async function createEntry(
     },
   });
 
-  revalidatePath("/");
-  revalidatePath("/collections");
-  revalidatePath("/map");
+  revalidateAll();
   return { ok: true };
 }
 
@@ -105,10 +114,7 @@ export async function updateEntry(
     },
   });
 
-  revalidatePath("/");
-  revalidatePath("/collections");
-  revalidatePath("/map");
-  revalidatePath(`/entries/${id}`);
+  revalidateAll(id);
   return { ok: true };
 }
 
@@ -119,9 +125,7 @@ export async function deleteEntry(id: string) {
   await prisma.entry.delete({ where: { id } }).catch(() => {
     // 已经不存在就当作成功
   });
-  revalidatePath("/");
-  revalidatePath("/collections");
-  revalidatePath("/map");
+  revalidateAll();
   redirect("/");
 }
 
@@ -135,7 +139,5 @@ export async function toggleFavorite(id: string) {
     where: { id },
     data: { favorite: !entry.favorite },
   });
-  revalidatePath("/");
-  revalidatePath("/collections");
-  revalidatePath(`/entries/${id}`);
+  revalidateAll(id);
 }
