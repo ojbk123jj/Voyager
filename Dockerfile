@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1.7
 # ============================================================================
 # Voyager — 多阶段 Dockerfile
 #   base        共享：Node + pnpm 预激活 + 国内 npm 源
