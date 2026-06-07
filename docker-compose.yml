@@ -1,0 +1,55 @@
+# Voyager 生产编排
+# 启动：docker compose up -d --build
+# 日志：docker compose logs -f
+# 停止：docker compose down
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: voyager-app:latest
+    container_name: voyager-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      # SQLite 文件挂在 /app/data 卷里（容器外持久化）
+      DATABASE_URL: file:/app/data/voyager.db
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    volumes:
+      - voyager_data:/app/data
+    networks:
+      - voyager_net
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: voyager-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - voyager_net
+    depends_on:
+      - app
+
+volumes:
+  voyager_data: # SQLite 持久化
+  caddy_data: # Caddy 自动签发的证书
+  caddy_config:
+
+networks:
+  voyager_net:
+    driver: bridge

@@ -1,0 +1,63 @@
+# =============================================================================
+# Voyager — Caddy 反向代理配置
+# =============================================================================
+# 当前阶段：用 IP 直接访问，纯 HTTP（80），无证书
+# 等域名买好后：把下面 ":80" 那段注释掉，启用 "your-domain.com" 那段即可
+# =============================================================================
+
+{
+	# 全局选项
+	# admin off  # 如果不需要 Caddy admin API 可以关掉，更安全
+	email admin@example.com  # Let's Encrypt 通知邮箱（有域名后改成你的真实邮箱）
+}
+
+# ----- 当前阶段：IP + HTTP -----
+:80 {
+	# 反向代理到 app 容器（compose 内部网络解析容器名）
+	reverse_proxy app:3000
+
+	# 安全相关响应头
+	header {
+		# 禁止 MIME 嗅探
+		X-Content-Type-Options nosniff
+		# 防点击劫持
+		X-Frame-Options DENY
+		# 引荐策略
+		Referrer-Policy strict-origin-when-cross-origin
+		# 移除暴露版本的 Server 头
+		-Server
+	}
+
+	# 静态资源缓存策略：Next.js 的 _next/static 文件名都带 hash，可以长缓存
+	@nextStatic path /_next/static/*
+	header @nextStatic Cache-Control "public, max-age=31536000, immutable"
+
+	# 访问日志
+	log {
+		output stdout
+		format console
+	}
+}
+
+# ----- 域名阶段（先注释掉，等买了域名再启用）-----
+# your-domain.com {
+# 	reverse_proxy app:3000
+#
+# 	encode zstd gzip
+#
+# 	header {
+# 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+# 		X-Content-Type-Options nosniff
+# 		X-Frame-Options DENY
+# 		Referrer-Policy strict-origin-when-cross-origin
+# 		-Server
+# 	}
+#
+# 	@nextStatic path /_next/static/*
+# 	header @nextStatic Cache-Control "public, max-age=31536000, immutable"
+#
+# 	log {
+# 		output stdout
+# 		format console
+# 	}
+# }
