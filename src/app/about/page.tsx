@@ -1,6 +1,8 @@
 import { Hero } from "@/components/hero";
 import { getStats } from "@/lib/queries";
 
+export const metadata = { title: "About" };
+
 export default async function AboutPage() {
   const { destinations, countries, avgRating, favorites } = await getStats();
 

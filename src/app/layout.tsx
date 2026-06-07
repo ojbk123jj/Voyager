@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Karla } from "next/font/google";
 import { Suspense } from "react";
 import { SiteHeader } from "@/components/site-header";
@@ -23,8 +23,32 @@ const fontSans = Karla({
 });
 
 export const metadata: Metadata = {
-  title: "Voyager — Travel Journal",
-  description: "Capture the essence of every journey.",
+  title: {
+    default: "Voyager — Travel Journal",
+    template: "%s · Voyager",
+  },
+  description:
+    "A personal travel journal to document the places that moved you. Capture the essence of every journey.",
+  applicationName: "Voyager",
+  authors: [{ name: "Voyager" }],
+  keywords: ["travel", "journal", "diary", "destinations", "memories"],
+  openGraph: {
+    title: "Voyager — Travel Journal",
+    description: "Capture the essence of every journey.",
+    type: "website",
+    siteName: "Voyager",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Voyager — Travel Journal",
+    description: "Capture the essence of every journey.",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#FCF9F2",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

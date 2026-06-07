@@ -7,6 +7,8 @@ import { emojiFor, regionFor } from "@/lib/regions";
 import { cn } from "@/lib/utils";
 import type { Entry } from "@/generated/prisma/client";
 
+export const metadata = { title: "Map" };
+
 type CountryGroup = { country: string; items: Entry[] };
 
 function groupByRegion(entries: Entry[]) {

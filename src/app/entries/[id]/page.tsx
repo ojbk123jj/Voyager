@@ -4,6 +4,20 @@ import { ArrowLeft } from "lucide-react";
 import { EntryDetail } from "@/components/entry-detail";
 import { getEntry } from "@/lib/queries";
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const entry = await getEntry(id);
+  if (!entry) return { title: "Not found" };
+  return {
+    title: `${entry.destination}, ${entry.country}`,
+    description: entry.review.slice(0, 160),
+  };
+}
+
 export default async function EntryPage({
   params,
 }: {

@@ -3,6 +3,8 @@ import { EntryCard } from "@/components/entry-card";
 import { EmptyState } from "@/components/empty-state";
 import { listFavorites } from "@/lib/queries";
 
+export const metadata = { title: "Collections" };
+
 export default async function CollectionsPage() {
   const favorites = await listFavorites();
 
