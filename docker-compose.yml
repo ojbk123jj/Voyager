@@ -78,10 +78,12 @@ services:
     ports:
       - "127.0.0.1:5555:5555"
     entrypoint: []
+    # Prisma 7 Studio 默认绑定 0.0.0.0，不支持 --hostname 参数
+    # 通过 --config 加载 prisma.config.ts，配合 environment.DATABASE_URL
     command:
       - sh
       - -c
-      - "node node_modules/prisma/build/index.js studio --port 5555 --hostname 0.0.0.0 --browser none"
+      - "node node_modules/prisma/build/index.js studio --port 5555 --browser none --config=./prisma.config.ts"
 
 volumes:
   voyager_data: # SQLite 持久化
